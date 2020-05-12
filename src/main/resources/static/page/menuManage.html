@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>菜单管理</title>
+    <link rel="stylesheet" href="../plugins/element-ui/index.css">
+    <style>
+        .el-input {
+            width: 85%;
+        }
+        .el-form-item {
+            text-align: right;
+        }
+    </style>
+</head>
+<!-- 引入组件库 -->
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/vue.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../plugins/element-ui/index.js"></script>
+<body>
+<div id="app">
+    <div class="demo-input-suffix">
+        菜单名：
+        <el-input
+                style="width: 20%"
+                placeholder="请输入内容"
+                prefix-icon="el-icon-search"
+                v-model="menuName">
+        </el-input>
+    </div>
+    <el-table style="top: 15px"
+              :data="menuTable"
+              border
+              style="width: 100%">
+        <el-table-column
+                fixed
+                type="index"
+                label="序号"
+                width="150">
+        </el-table-column>
+        <el-table-column
+                prop="menuName"
+                label="菜单名"
+                width="120">
+        </el-table-column>
+        <el-table-column
+                prop="path"
+                label="菜单级别"
+                width="120">
+        </el-table-column>
+        <el-table-column
+                prop="linkUrl"
+                label="菜单对应页面"
+                width="120">
+        </el-table-column>
+        <el-table-column
+                prop="desc"
+                label="描述"
+                width="300">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                label="操作"
+                width="100">
+            <template slot-scope="scope">
+                <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <div class="block" style="margin:25px">
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="size"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+        </el-pagination>
+    </div>
+
+    <el-dialog title="菜单信息" :visible.sync="editVisible">
+        <el-form :model="editForm">
+            <el-form-item label="菜单级别">
+                <el-input v-model="editForm.path"></el-input>
+            </el-form-item>
+            <el-form-item label="菜单名">
+                <el-input v-model="editForm.menuName"></el-input>
+            </el-form-item>
+            <el-form-item label="页面名">
+                <el-input v-model="editForm.linkUrl"></el-input>
+            </el-form-item>
+            <el-form-item label="描述">
+                <el-input type="textarea" v-model="editForm.desc"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="editVisible = false">取 消</el-button>
+            <el-button type="primary" @click="editVisible = false">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+</body>
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            currentPage: 1,
+            size: 10,
+            total: 0,
+            menuName: '',
+            editVisible: false,//编辑弹窗开启/关闭
+            //编辑框表单数据
+            editForm: {
+                menuName: '',
+                linkUrl: '',
+                path: '',
+                desc: '',
+                parentId: 0
+            },
+            menuTable: []
+        },
+        methods: {
+            handleClick(row) {
+                this.editVisible = true;
+                axios.get('/menu/getById?menuId='+row.id).then(res=>{
+                    this.editForm = res.data.data;
+                })
+            },
+            /**
+             * 每页显示条数改变事件
+             * @param val
+             */
+            handleSizeChange(size) {
+                let params = {
+                    current: this.currentPage,
+                    size: size,
+                };
+                this.getPage(params);
+            },
+            /**
+             * 当前页改变事件
+             * @param val
+             */
+            handleCurrentChange(currentPage) {
+                let params = {
+                    current: currentPage,
+                    size: this.size,
+                };
+                this.getPage(params);
+            },
+            getPage(params) {
+                axios.post('/menu/management', params).then(res => {
+                    if (res.data.isSuccess) {
+                        let data = res.data.data;
+                        this.menuTable = data.records;
+                        this.currentPage = data.current;
+                        this.total = data.total;
+                    } else {
+                        this.$message.error("获取菜单信息失败");
+                    }
+                })
+            }
+        },
+        created() {
+            let params = {
+                current: 1,
+                size: 10,
+            };
+            this.getPage(params);
+        }
+    })
+</script>
+</html>
