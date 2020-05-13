@@ -117,19 +117,21 @@
             }
         },
         created() {
-            let urlParameter = getUrlParameter("username");
-            let userId = getUrlParameter("id");
-            this.$message.success("欢迎登陆，" + urlParameter);
-            this.username = urlParameter;
-
-            /**
-             * 请求获取用户菜单信息
-             */
-            axios.get("/menu/getMenuList?userId=" + userId).then(res => {
+            axios.get("/user-info/getCurrentUser").then(res=>{
                 if (res.data.isSuccess) {
-                    this.menuList = res.data.data;
+                    let userTel = res.data.data.username;
+                    /**
+                     * 请求获取用户菜单信息
+                     */
+                    axios.get("/menu/getMenuList?userTel=" + userTel).then(res => {
+                        if (res.data.isSuccess) {
+                            this.menuList = res.data.data;
+                        } else {
+                            this.$message.error("获取菜单信息出错");
+                        }
+                    })
                 } else {
-                    this.$message.error("获取菜单信息出错");
+                    this.$message.error("获取用户信息出错");
                 }
             })
 

@@ -4,10 +4,9 @@ import com.blog.bean.common.ResponseBean;
 import com.blog.bean.user.UserInfo;
 import com.blog.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by ZXP on 2020/4/25 15:11
@@ -27,4 +26,12 @@ public class UserController {
         }
         return ResponseBean.success(loginUserInfo,"登陆成功");
     }
+
+    @GetMapping("/getCurrentUser")
+    public ResponseBean getCurrentUser(){
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseBean.success(loginUser,"操作成功");
+    }
+
+
 }

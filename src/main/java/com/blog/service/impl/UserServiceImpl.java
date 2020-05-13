@@ -1,5 +1,6 @@
 package com.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.blog.bean.user.UserInfo;
 import com.blog.mapper.UserDao;
@@ -20,6 +21,14 @@ public class UserServiceImpl  extends ServiceImpl<UserDao, UserInfo> implements 
     public UserInfo login(UserInfo user) {
         UserInfo userInfo = dao.login(user);
         return userInfo;
+    }
+
+    @Override
+    public UserInfo getByTel(String tel) {
+        QueryWrapper<UserInfo> query = new QueryWrapper<>();
+        query.lambda().eq(UserInfo::getTel,tel).last(" limit 1 ");
+        UserInfo one = super.getOne(query);
+        return one;
     }
 
 }

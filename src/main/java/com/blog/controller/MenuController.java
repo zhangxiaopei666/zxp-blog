@@ -5,8 +5,11 @@ import com.blog.bean.common.ResponseBean;
 import com.blog.bean.request.user.MenuRequest;
 import com.blog.bean.response.user.MenuList;
 import com.blog.bean.user.MenuInfo;
+import com.blog.bean.user.UserInfo;
 import com.blog.service.MenuInfoService;
+import com.blog.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +24,18 @@ public class MenuController {
     @Autowired
     MenuInfoService service;
 
+    @Autowired
+    UserService userService;
+
     /**
      * 根据用户id获取用户菜单信息
      * @author ZXP
      * @Date 2020-04-26 15:59
      */
     @GetMapping("/getMenuList")
-    public ResponseBean getMenuList(Integer userId){
-        List<MenuList> result =  service.getMenuList(userId);
+    public ResponseBean getMenuList(@RequestParam("userTel") String userTel){
+        UserInfo userInfo = userService.getByTel(userTel);
+        List<MenuList> result =  service.getMenuList(userInfo.getId());
         return ResponseBean.success(result,"操作成功");
     }
 
@@ -38,6 +45,7 @@ public class MenuController {
      * @Date 2020-04-26 15:59
      */
     @PostMapping("/management")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseBean management(@RequestBody MenuRequest.PageRequest request){
         Page<MenuInfo> result =  service.management(request);
         return ResponseBean.success(result,"操作成功");

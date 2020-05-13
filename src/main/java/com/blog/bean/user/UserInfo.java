@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -61,4 +64,5 @@ public class UserInfo extends Model<UserInfo> {
     protected Serializable pkVal() {
         return this.id;
     }
+
 }
